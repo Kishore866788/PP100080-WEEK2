@@ -1,0 +1,96 @@
+```
+import re
+from collections import Counter
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+def read_file(file_path: str) -> str:
+    """
+    Reads the content of a file.
+
+    Args:
+        file_path (str): The path to the file.
+
+    Returns:
+        str: The content of the file.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError:
+        print("Error: The file was not found. Please provide a valid file path.")
+        return ""
+
+def calculate_statistics(text: str) -> dict:
+    """
+    Calculates statistics about the text.
+
+    Args:
+        text (str): The text to analyze.
+
+    Returns:
+        dict: A dictionary containing the statistics.
+    """
+    words = re.findall(r'\b\w+\b', text.lower())
+    sentences = re.split(r'[.!?]', text)
+    num_words = len(words)
+    num_characters = len(text)
+    num_sentences = len([s for s in sentences if s.strip()])
+    return {
+        "num_words": num_words,
+        "num_characters": num_characters,
+        "num_sentences": num_sentences,
+    }
+
+def calculate_word_frequencies(text: str) -> Counter:
+    """
+    Calculates the frequency of each word in the text.
+
+    Args:
+        text (str): The text to analyze.
+
+    Returns:
+        Counter: A Counter object containing the word frequencies.
+    """
+    words = re.findall(r'\b\w+\b', text.lower())
+    return Counter(words)
+
+def generate_word_cloud(word_frequencies: Counter) -> None:
+    """
+    Generates a word cloud based on the word frequencies.
+
+    Args:
+        word_frequencies (Counter): A Counter object containing the word frequencies.
+    """
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_frequencies)
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.title("Word Cloud", fontsize=16)
+    plt.show()
+
+def text_analyzer(file_path: str) -> None:
+    """
+    Analyzes the text in a file.
+
+    Args:
+        file_path (str): The path to the file.
+    """
+    text = read_file(file_path)
+    if not text:
+        return
+    stats = calculate_statistics(text)
+    word_frequencies = calculate_word_frequencies(text)
+    print("Text Analysis Summary:")
+    print(f"Number of words: {stats['num_words']}")
+    print(f"Number of characters: {stats['num_characters']}")
+    print(f"Number of sentences: {stats['num_sentences']}")
+    print("\nMost Frequent Words:")
+    for word, count in word_frequencies.most_common(10):
+        print(f"{word}: {count}")
+    generate_word_cloud(word_frequencies)
+
+if __name__ == "__main__":
+    file_path = input("Enter the path of the text file to analyze: ")
+    text_analyzer(file_path)
+```
